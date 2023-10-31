@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const { Client } = require("pg");
+const { Client, Connection } = require("pg");
 
 app.use(express.json());
 app.use(cors());
@@ -76,25 +76,21 @@ app.post("/products", function (req, res) {
     })
 })
 
-app.put("/products/:id", function (req, res) {
-    let id = +req.params.id;
-    let body = req.body;
+app.put("/products/:productid", function (req, res) {
+    let productid = +req.params.productid; 
+    let body = req.body; 
 
-    let sql = `UPDATE products SET productname=$1, category=$2, description=$3 WHERE productid=${id}`;
-    let values = [body.productname, body.category, body.description];
+    let sql = `UPDATE products SET productname=$1, category=$2, description=$3 WHERE productid=$4`;
+    let values = [body.productname, body.category, body.description, productid];
 
     client.query(sql, values, function (err, result) {
-        if (err) res.status(404).send(err);
-        else {
-            if (result) {
-                res.send("Data updated successfully!!!");
-            } else {
-                res.send("No items found !!!");
-            }
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.send(result.rows);
         }
-    })
-})
-
+    });
+});
 
 
 //fetching data through api from purchases:-------------------------------------------
